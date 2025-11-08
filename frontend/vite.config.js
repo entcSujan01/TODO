@@ -1,13 +1,3 @@
-// import { defineConfig } from 'vite'
-// import react from '@vitejs/plugin-react'
-
-// // https://vite.dev/config/
-// export default defineConfig({
-//   plugins: [react()],
-// })
-
-
-
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -23,4 +13,12 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    outDir: 'dist',  // Explicit output dir for Vercel (default, but ensures clarity)
+    sourcemap: false,  // Disable sourcemaps in prod for smaller bundles
+  },
+  define: {
+    global: 'globalThis',  // Polyfill for Node globals if needed in deps
+  },
+  base: '/',  // Root-relative paths for Vercel deployment
 })
