@@ -23,7 +23,7 @@ app.use('/api/todos', require('./routes/todos'));  // Add more routes as needed,
 
 // For Vercel serverless: Export app instead of listening
 if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 5000;
+  const PORT = process.env.PORT ;
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 } else {
   module.exports = app;  // Vercel uses this for API routes
