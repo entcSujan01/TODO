@@ -41,21 +41,46 @@ function App() {
   };
 
   const handleAddTodo = async (todoData, imageFile, pdfFile) => {
-    try {
-      const formData = new FormData();
-      formData.append('text', todoData.text);
-      formData.append('dueDate', todoData.dueDate);
-      formData.append('completed', todoData.completed);
-      if (imageFile) formData.append('image', imageFile);
-      if (pdfFile) formData.append('pdf', pdfFile);
+    const formData = new FormData();
+    formData.append('text', todoData.text);
+    if (todoData.dueDate) formData.append('dueDate', todoData.dueDate);
+    formData.append('completed', todoData.completed);
 
-      const res = await axios.post('/api/todos', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+    try {
+      let imageUrl, pdfUrl;
+
+      if (imageFile) {
+        const imgData = new FormData();
+        imgData.append('file', imageFile);
+        imgData.append('upload_preset', 'your_unsigned_preset'); // Create in Cloudinary
+        const imgRes = await fetch(
+          `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME}/image/upload`,
+          { method: 'POST', body: imgData }
+        );
+        const imgJson = await imgRes.json();
+        imageUrl = imgJson.secure_url;
+      }
+
+      if (pdfFile) {
+        const pdfData = new FormData();
+        pdfData.append('file', pdfFile);
+        pdfData.append('upload_preset', 'your_unsigned_preset');
+        const pdfRes = await fetch(
+          `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME}/raw/upload`,
+          { method: 'POST', body: pdfData }
+        );
+        const pdfJson = await pdfRes.json();
+        pdfUrl = pdfJson.secure_url;
+      }
+
+      if (imageUrl) formData.append('imageUrl', imageUrl);
+      if (pdfUrl) formData.append('pdfUrl', pdfUrl);
+
+      const res = await axios.post('/api/todos', Object.fromEntries(formData));
       setTodos([...todos, res.data]);
       setOpenForm(false);
     } catch (err) {
-      console.error('Failed to add todo:', err);
+      console.error(err);
     }
   };
 
